@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "dev": "npm --prefix project run dev"
+  },
   "dependencies": {
     "@supabase/supabase-js": "^2.103.2",
     "framer-motion": "^12.38.0",
