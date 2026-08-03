@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "@supabase/supabase-js": "^2.103.2",
+    "framer-motion": "^12.38.0",
+    "lucide-react": "^1.8.0",
+    "react-helmet-async": "^3.0.0",
+    "react-router-dom": "^7.14.1"
+  },
+  "devDependencies": {
+    "@types/react-helmet": "^6.1.11"
+  }
+}
