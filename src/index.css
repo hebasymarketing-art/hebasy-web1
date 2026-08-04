@@ -1,0 +1,45 @@
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+html {
+  /* ስክሮል ባር መጣ አልመጣ ሁልጊዜ ቦታውን ክፍት ያደርገዋል፣ መነቃነቁን ያቆማል */
+  scrollbar-gutter: stable !important;
+  overflow-x: hidden;
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+  /* ገጹ ሲከፈት ወደ ታች እንዳይሄድ */
+  position: relative;
+}
+
+/* ለ Hero Section ባክግራውንድ */
+.custom-hero-bg {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)), 
+                    url('/pexels-mikael-blomkvist-6476258.jpg');
+  background-size: cover;
+  background-position: center;
+}
+/* Scrollbar ማስተካከያ */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+::-webkit-scrollbar-thumb {
+  background: #001f3f; /* ያንተ ጥቁር ሰማያዊ ከለር */
+  border-radius: 5px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #00aaff; /* ሲነካ ደማቅ ሰማያዊ */
+}
+html {
+  scroll-behavior: smooth;
+}
