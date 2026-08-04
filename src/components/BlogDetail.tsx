@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from './supabase';
+import { useSupabaseQuery } from '../hooks/useSupabaseQuery';
 
 interface BlogPost {
   id: number;
@@ -14,65 +15,60 @@ interface BlogPost {
 export default function BlogDetail() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
-  const [post, setPost] = useState<BlogPost | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [notFound, setNotFound] = useState(false);
 
-  useEffect(() => {
+  const fetchPost = useCallback(async () => {
     if (!slug) {
-      setNotFound(true);
-      setLoading(false);
-      return;
+      return { data: null, error: null };
     }
-
-    const fetchPost = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('Blog')
-          .select('id, title, content, image_url, created_at, slug')
-          .eq('slug', slug)
-          .single();
-
-        if (error) {
-          if (error.code === 'PGRST116' || error.message?.includes('No rows')) {
-            setNotFound(true);
-            return;
-          }
-          throw error;
-        }
-
-        if (!data) {
-          setNotFound(true);
-          return;
-        }
-
-        setPost(data as BlogPost);
-      } catch (error) {
-        console.error('Error fetching blog post:', error);
-        setNotFound(true);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchPost();
+    const { data, error } = await supabase
+      .from('Blog')
+      .select('id, title, content, image_url, created_at, slug')
+      .eq('slug', slug)
+      .single();
+    return { data: data as BlogPost | null, error };
   }, [slug]);
+
+  const { data: post, loading, error, refetch } = useSupabaseQuery<BlogPost>(fetchPost, {
+    cacheKey: slug ? `blog_post_${slug}` : undefined,
+  });
 
   const title = post?.title?.trim() || 'Untitled blog post';
   const content = post?.content?.trim() || 'No content available for this post yet.';
 
   if (loading) {
     return (
-      <section className="min-h-screen flex items-center justify-center bg-white px-6 py-24">
-        <div className="flex flex-col items-center justify-center space-y-4">
-          <div className="w-12 h-12 border-4 border-[#00aaff] border-t-transparent rounded-full animate-spin" />
-          <p className="tracking-[0.3em] uppercase text-[10px] font-black text-[#001f3f]">Loading blog post…</p>
+      <section className="min-h-screen bg-white px-6 py-24">
+        <div className="max-w-6xl mx-auto animate-pulse">
+          <div className="h-3 w-24 bg-gray-200 rounded mb-6" />
+          <div className="h-12 bg-gray-200 rounded w-3/4 mb-6" />
+          <div className="h-4 bg-gray-200 rounded w-40 mb-12" />
+          <div className="h-[500px] bg-gray-200 rounded-[2rem] mb-12" />
+          <div className="h-4 bg-gray-200 rounded w-full mb-3" />
+          <div className="h-4 bg-gray-200 rounded w-full mb-3" />
+          <div className="h-4 bg-gray-200 rounded w-2/3" />
         </div>
       </section>
     );
   }
 
-  if (notFound || !post) {
+  if (!post && error && !error.toLowerCase().includes('no rows') && !error.toLowerCase().includes('json object requested')) {
+    return (
+      <section className="min-h-screen flex items-center justify-center bg-white px-6 py-24">
+        <div className="max-w-3xl text-center">
+          <h1 className="text-4xl md:text-5xl font-black text-[#001f3f] mb-6">Unable to Load This Post</h1>
+          <p className="text-gray-500 mb-10">We could not load this article right now. Please check your connection and try again.</p>
+          <button
+            onClick={refetch}
+            className="px-8 py-4 bg-[#001f3f] text-white font-black rounded-full uppercase tracking-[0.2em] text-xs hover:bg-[#00aaff] transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      </section>
+    );
+  }
+
+  if (!post) {
     return (
       <section className="min-h-screen flex items-center justify-center bg-white px-6 py-24">
         <div className="max-w-3xl text-center">

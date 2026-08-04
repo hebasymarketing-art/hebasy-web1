@@ -1,33 +1,41 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useCallback, useEffect, useState, useRef } from 'react';
 import { supabase } from './supabase';
+import { useSupabaseQuery } from '../hooks/useSupabaseQuery';
 import { Star, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 
+interface CommentItem {
+  id: number;
+  user_name: string;
+  user_email: string;
+  company_name?: string | null;
+  comment_text: string;
+  rating: number;
+  created_at: string;
+}
+
 export default function Comments() {
-  const [comments, setComments] = useState<any[]>([]);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [companyName, setCompanyName] = useState(''); // 💡 1. አዲሱ useState እዚህ ጋር ተጨምሯል
   const [text, setText] = useState('');
   const [rating, setRating] = useState(5);
-  const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const fetchComments = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('comments')
-        .select('*')
-        .order('created_at', { ascending: false });
-      if (error) throw error;
-      if (data) setComments(data);
-    } catch (err) {
-      console.error("Error fetching comments:", err);
-    }
-  };
+  const fetchComments = useCallback(async () => {
+    const { data, error } = await supabase
+      .from('comments')
+      .select('*')
+      .order('created_at', { ascending: false });
+    return { data: data as CommentItem[] | null, error };
+  }, []);
+
+  const { data: comments, loading, refetch } = useSupabaseQuery<CommentItem[]>(fetchComments, {
+    cacheKey: 'comments',
+  });
 
   useEffect(() => {
-    fetchComments();
     if (window.location.hash) {
       const id = window.location.hash.replace('#', '');
       const element = document.getElementById(id);
@@ -49,7 +57,7 @@ export default function Comments() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    setSubmitting(true);
     try {
       // 💡 2. እዚህ ጋር company_name ወደ Supabase አብሮ እንዲላክ ተደርጓል
       const { error } = await supabase
@@ -63,16 +71,16 @@ export default function Comments() {
         }]);
       if (!error) {
         setName(''); setEmail(''); setCompanyName(''); setText(''); setRating(5);
-        fetchComments();
+        refetch();
       }
     } catch (err) {
       console.error(err);
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   };
 
-  const CommentCard = ({ c }: { c: any }) => (
+  const CommentCard = ({ c }: { c: CommentItem }) => (
     <div className="w-[300px] md:w-[350px] bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-[0_15px_45px_rgba(0,0,0,0.03)] mx-4 shrink-0 flex flex-col h-full self-start">
       <div className="flex text-yellow-400 mb-6 scale-90 origin-left">
         {[...Array(5)].map((_, i) => (
@@ -144,8 +152,8 @@ export default function Comments() {
                    </div>
                  </div>
                  <textarea placeholder="መልዕክት..." className="w-full p-4 bg-white/5 border border-white/10 rounded-2xl outline-none focus:border-[#00aaff] text-white h-24 resize-none text-xs font-bold" value={text} onChange={(e) => setText(e.target.value)} required />
-                 <button disabled={loading} className="w-full bg-[#00aaff] text-[#001f3f] py-4 rounded-2xl font-black text-[10px] tracking-widest hover:bg-white transition-all uppercase shadow-lg shadow-[#00aaff]/20">
-                   {loading ? 'በመላክ ላይ...' : 'አስገባ'}
+                 <button disabled={submitting} className="w-full bg-[#00aaff] text-[#001f3f] py-4 rounded-2xl font-black text-[10px] tracking-widest hover:bg-white transition-all uppercase shadow-lg shadow-[#00aaff]/20">
+                   {submitting ? 'በመላክ ላይ...' : 'አስገባ'}
                  </button>
                </form>
             </div>
@@ -165,8 +173,21 @@ export default function Comments() {
                </div>
                <div ref={scrollRef} className="overflow-hidden py-10">
                  <div className="flex animate-marquee group-hover:[animation-play-state:paused] w-max">
-                   {comments.length > 0 ? (
-                     <>{comments.map((c, i) => <CommentCard key={`a-${i}`} c={c} />)}{comments.map((c, i) => <CommentCard key={`b-${i}`} c={c} />)}</>
+                   {loading && !comments ? (
+                     <>{[1, 2].map((n) => (
+                       <div key={n} className="w-[300px] md:w-[350px] bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-[0_15px_45px_rgba(0,0,0,0.03)] mx-4 shrink-0 animate-pulse">
+                         <div className="h-4 w-24 bg-gray-200 rounded mb-6" />
+                         <div className="h-3 w-full bg-gray-200 rounded mb-2" />
+                         <div className="h-3 w-5/6 bg-gray-200 rounded mb-2" />
+                         <div className="h-3 w-2/3 bg-gray-200 rounded mb-8" />
+                         <div className="flex items-center gap-4 border-t border-gray-50 pt-6">
+                           <div className="w-10 h-10 bg-gray-200 rounded-full" />
+                           <div className="h-3 w-24 bg-gray-200 rounded" />
+                         </div>
+                       </div>
+                     ))}</>
+                   ) : (comments ?? []).length > 0 ? (
+                     <>{(comments ?? []).map((c, i) => <CommentCard key={`a-${i}`} c={c} />)}{(comments ?? []).map((c, i) => <CommentCard key={`b-${i}`} c={c} />)}</>
                    ) : (
                      <div className="text-gray-300 italic p-10 font-bold uppercase tracking-widest text-xs">መረጃ እየፈለግን ነው...</div>
                    )}
@@ -179,9 +200,9 @@ export default function Comments() {
                  {[...Array(4)].map((_, i) => (<div key={i} className="w-10 h-10 rounded-full border-4 border-white bg-[#001f3f] flex items-center justify-center text-[8px] font-black text-white italic shadow-lg">H</div>))}
                </div>
                <div className="flex flex-col">
-                 <p className="text-sm font-black text-[#001f3f] uppercase tracking-tighter italic">
-                   በአጠቃላይ <span className="text-[#00aaff] text-lg"> {comments.length} </span> {comments.length === 1 ? 'ደንበኛ' : 'ደንበኞች'} አስተያየት ሰጥተዋል!
-                 </p>
+                  <p className="text-sm font-black text-[#001f3f] uppercase tracking-tighter italic">
+                    በአጠቃላይ <span className="text-[#00aaff] text-lg"> {(comments ?? []).length} </span> {(comments ?? []).length === 1 ? 'ደንበኛ' : 'ደንበኞች'} አስተያየት ሰጥተዋል!
+                  </p>
                  <span className="text-[9px] text-gray-400 font-bold uppercase tracking-[0.3em]">Hebasy Marketing Agency</span>
                </div>
              </div>

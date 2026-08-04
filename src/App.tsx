@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from
 import Header from './components/Header';
 import Hero from './components/Hero';
 import PortalDashboard from './components/portal/PortalDashboard';
+import type { PortalData } from './components/portal/PortalDashboard';
 import Login from './components/portal/Login';
 
 // ኮር ክፍሎችን ያለምንም ላግ በፍጥነት እንዲጭን ቀጥታ Import እናደርጋቸዋለን
@@ -146,7 +147,7 @@ function AppShell({ children }: { children: ReactNode }) {
 }
 
 function AppContent() {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<PortalData | null>(null);
 
   return (
     <AppShell>

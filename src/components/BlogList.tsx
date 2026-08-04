@@ -1,6 +1,7 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from './supabase';
+import { useSupabaseQuery } from '../hooks/useSupabaseQuery';
 
 interface BlogPost {
   id: number;
@@ -12,34 +13,20 @@ interface BlogPost {
 }
 
 export default function BlogList() {
-  const [posts, setPosts] = useState<BlogPost[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let isMounted = true;
-    const fetchBlogs = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('Blog')
-          .select('id, title, content, image_url, slug, created_at')
-          .order('created_at', { ascending: false });
-
-        if (error) throw error;
-        if (isMounted && data) setPosts(data);
-      } catch (error) {
-        console.error('Error fetching Blog posts:', error);
-      } finally {
-        if (isMounted) setLoading(false);
-      }
-    };
-
-    fetchBlogs();
-    return () => { isMounted = false; };
+  const fetchBlogs = useCallback(async () => {
+    const { data, error } = await supabase
+      .from('Blog')
+      .select('id, title, content, image_url, slug, created_at')
+      .order('created_at', { ascending: false });
+    return { data: data as BlogPost[] | null, error };
   }, []);
 
-  // ቀን የሚያሳይበትን ሂደት አቀላጥፈነዋል
+  const { data: posts, loading, error, refetch } = useSupabaseQuery<BlogPost[]>(fetchBlogs, {
+    cacheKey: 'blog_list',
+  });
+
   const formattedPosts = useMemo(() => {
-    return posts.map(post => ({
+    return (posts ?? []).map(post => ({
       ...post,
       date: new Date(post.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
     }));
@@ -133,9 +120,21 @@ export default function BlogList() {
           ))}
         </div>
 
-        {posts.length === 0 && (
+        {formattedPosts.length === 0 && !loading && (
           <div className="text-center py-24 text-gray-500 uppercase text-xs tracking-[0.4em] font-black">
-            No blog posts available yet.
+            {error ? 'Unable to load blog posts. Check your connection.' : 'No blog posts available yet.'}
+          </div>
+        )}
+
+        {error && formattedPosts.length > 0 && (
+          <div className="flex flex-col items-center gap-3 mt-10">
+            <p className="text-gray-400 text-xs font-medium">Showing cached posts — network unavailable.</p>
+            <button
+              onClick={refetch}
+              className="text-[10px] font-black tracking-widest uppercase text-[#001f3f] border border-gray-200 rounded-full px-5 py-2 hover:border-[#00aaff] hover:text-[#00aaff] transition-colors"
+            >
+              Try Again
+            </button>
           </div>
         )}
       </div>

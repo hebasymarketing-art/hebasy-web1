@@ -1,25 +1,25 @@
 import { useState, useEffect, type MouseEvent } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 
+const navigation = [
+  { name: 'Home', href: '/' },
+  { name: 'About', href: '/about' },
+  { name: 'Services', href: '/services' },
+  { name: 'Blog', href: '/blog' },
+  { name: 'Gallery', href: '/gallery' },
+  { name: 'Portal', href: '/portal' },
+  { name: 'Why Us', href: '/why-us' },
+  { name: 'Photography', href: '/photography' },
+  { name: 'Comments', href: '/comments' },
+  { name: 'Contact', href: '/contact' },
+];
+
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
   const location = useLocation();
   const navigate = useNavigate();
-
-  const navigation = [
-    { name: 'Home', href: '/' },
-    { name: 'About', href: '/about' },
-    { name: 'Services', href: '/services' },
-    { name: 'Blog', href: '/blog' },
-    { name: 'Gallery', href: '/gallery' }, 
-    { name: 'Portal', href: '/portal' },
-    { name: 'Why Us', href: '/why-us' },
-    { name: 'Photography', href: '/photography' },
-    { name: 'Comments', href: '/comments' },
-    { name: 'Contact', href: '/contact' },
-  ];
 
   useEffect(() => {
     const handleScrollAndSpy = () => {

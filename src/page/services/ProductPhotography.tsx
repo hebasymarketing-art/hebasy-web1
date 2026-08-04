@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowLeft, Camera, Phone, Send, AlertTriangle, Lightbulb, CheckCircle, Globe, Sparkles, TrendingUp, BarChart2, HelpCircle } from 'lucide-react';
+import { ArrowLeft, Camera, Phone, Send, AlertTriangle, Lightbulb, CheckCircle, Globe, Sparkles, TrendingUp, BarChart2 } from 'lucide-react';
 
 export default function ProductPhotography() {
   const [isAmharic, setIsAmharic] = useState(false);

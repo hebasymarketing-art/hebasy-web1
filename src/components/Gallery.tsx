@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { supabase } from './supabase';
+import { useSupabaseQuery } from '../hooks/useSupabaseQuery';
 import { Video, Instagram } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -22,23 +23,28 @@ function ExpandableText({ text }: { text: string }) {
   );
 }
 
-export default function Gallery() {
-  const [items, setItems] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true); // 🚀 ዳታው እስኪመጣ መጠበቂያ ስቴት
+interface GalleryItem {
+  id: number;
+  title: string;
+  caption: string;
+  category: string;
+  video_url: string;
+  tiktok_url?: string;
+  insta_url?: string;
+}
 
-  useEffect(() => {
-    const fetchGallery = async () => {
-      try {
-        const { data } = await supabase.from('gallery').select('*').order('created_at', { ascending: false });
-        if (data) setItems(data);
-      } catch (error) {
-        console.error("Error fetching gallery:", error);
-      } finally {
-        setLoading(false); // 🚀 ዳታው ሲመጣ ሎዲንጉን ያጠፋዋል
-      }
-    };
-    fetchGallery();
+export default function Gallery() {
+  const fetchGallery = useCallback(async () => {
+    const { data, error } = await supabase
+      .from('gallery')
+      .select('*')
+      .order('created_at', { ascending: false });
+    return { data: data as GalleryItem[] | null, error };
   }, []);
+
+  const { data: items, loading } = useSupabaseQuery<GalleryItem[]>(fetchGallery, {
+    cacheKey: 'gallery',
+  });
 
   return (
     /* 🚀 እዚህ ጋር min-h-[650px] ጨምሬበታለሁ፤ ዳታው ባዶ ቢሆንም እንኳ ብሮውዘሩ ወደ ፉተር እንዳይዘል ይከለክለዋል! */
@@ -53,15 +59,24 @@ export default function Gallery() {
 
         {/* 🚀 ሎዲንግ ካለ የሚያምር Loading Indicator ያሳያል */}
         {loading ? (
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-[#00aaff]"></div>
+          <div className="flex overflow-x-auto gap-8 pb-12 snap-x no-scrollbar px-2">
+            {[1, 2, 3].map((n) => (
+              <div key={n} className="min-w-[300px] max-w-[300px] bg-white rounded-[2rem] overflow-hidden border border-gray-100 animate-pulse">
+                <div className="aspect-[9/16] bg-gray-200" />
+                <div className="p-7">
+                  <div className="h-5 w-16 bg-gray-200 rounded-full" />
+                  <div className="h-5 w-3/4 bg-gray-200 rounded mt-5 mb-3" />
+                  <div className="h-3 w-full bg-gray-200 rounded mb-2" />
+                  <div className="h-3 w-2/3 bg-gray-200 rounded" />
+                </div>
+              </div>
+            ))}
           </div>
-        ) : items.length === 0 ? (
-          // ዳታቤዙ ላይ ምንም ቪዲዮ ከሌለ ባዶ እንዳይሆን
+        ) : (items ?? []).length === 0 ? (
           <div className="text-center text-gray-400 py-12">No gallery items found.</div>
         ) : (
           <div className="flex overflow-x-auto gap-8 pb-12 snap-x no-scrollbar px-2">
-            {items.map((item, index) => (
+            {(items ?? []).map((item, index) => (
               <motion.div 
                 key={item.id} 
                 initial={{ opacity: 0, y: 30 }}

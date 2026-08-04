@@ -1,8 +1,9 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import { AreaChart, Area, ResponsiveContainer } from 'recharts';
 import { supabase } from '../supabase';
+import { useSupabaseQuery } from '../../hooks/useSupabaseQuery';
 
-interface PortalData {
+export interface PortalData {
   client_code?: string;
   client_name?: string;
   package_name?: string;
@@ -35,9 +36,6 @@ interface PortalDashboardProps {
 }
 
 export default function PortalDashboard({ data, onLogout }: PortalDashboardProps) {
-  const [chartData, setChartData] = useState<{ val: number }[]>([]);
-  const [isGrowthPositive, setIsGrowthPositive] = useState<boolean>(true);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [lang, setLang] = useState<'en' | 'am'>('en');
 
   useEffect(() => {
@@ -52,40 +50,38 @@ export default function PortalDashboard({ data, onLogout }: PortalDashboardProps
     };
   }, [onLogout]);
 
-  useEffect(() => {
-    const fetchMonthlyData = async () => {
-      try {
-        const { data: dbData } = await supabase
-          .from('Reports')
-          .select('monthly_growth')
-          .not('monthly_growth', 'is', null)
-          .order('id', { ascending: true })
-          .limit(6);
-
-        if (dbData && dbData.length > 0) {
-          const formatted = dbData.map(item => ({ val: Number(item.monthly_growth) || 0 }));
-          setChartData(formatted);
-
-          if (dbData.length >= 2) {
-            const current = Number(dbData[dbData.length - 1].monthly_growth) || 0;
-            const previous = Number(dbData[dbData.length - 2].monthly_growth) || 0;
-            setIsGrowthPositive(current >= previous);
-          }
-        }
-      } catch (error) {
-        console.error('Error fetching monthly data:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchMonthlyData();
+  const fetchMonthlyData = useCallback(async () => {
+    const { data: dbData, error } = await supabase
+      .from('Reports')
+      .select('monthly_growth')
+      .not('monthly_growth', 'is', null)
+      .order('id', { ascending: true })
+      .limit(6);
+    return { data: dbData as { monthly_growth: number | string | null }[] | null, error };
   }, []);
+
+  const { data: monthlyRows, loading: chartLoading } = useSupabaseQuery<{ monthly_growth: number | string | null }[]>(
+    fetchMonthlyData,
+    { cacheKey: `portal_growth_${data?.client_code ?? 'all'}` }
+  );
+
+  const chartData = useMemo(
+    () => (monthlyRows ?? []).map((item) => ({ val: Number(item.monthly_growth) || 0 })),
+    [monthlyRows]
+  );
+
+  const isGrowthPositive = useMemo(() => {
+    if (chartData.length < 2) return true;
+    const current = chartData[chartData.length - 1].val;
+    const previous = chartData[chartData.length - 2].val;
+    return current >= previous;
+  }, [chartData]);
 
   const chartColor = useMemo(() => (isGrowthPositive ? "#16a34a" : "#dc2626"), [isGrowthPositive]);
 
   const formatLink = (url?: string, defaultUrl: string = '#') => {
     if (!url || url === '#') return defaultUrl;
-    let cleanUrl = url.replace('indtagram.com', 'instagram.com').trim();
+    const cleanUrl = url.replace('indtagram.com', 'instagram.com').trim();
     if (!cleanUrl.startsWith('http://') && !cleanUrl.startsWith('https://')) {
       return `https://${cleanUrl}`;
     }
@@ -95,7 +91,7 @@ export default function PortalDashboard({ data, onLogout }: PortalDashboardProps
   const instagramLink = useMemo(() => formatLink(data?.host_instagram, 'https://www.instagram.com'), [data?.host_instagram]);
   const tiktokLink = useMemo(() => formatLink(data?.host_tiktok, 'https://www.tiktok.com'), [data?.host_tiktok]);
 
-  const safeNum = (val: any) => {
+  const safeNum = (val: unknown) => {
     const num = Number(val);
     return isNaN(num) ? 0 : num;
   };
@@ -419,7 +415,7 @@ export default function PortalDashboard({ data, onLogout }: PortalDashboardProps
                       </div>
                     </div>
                     <div className="h-12 w-full mt-3">
-                      {isLoading ? (
+                      {chartLoading ? (
                         <div className="h-full w-full bg-slate-200 animate-pulse rounded-lg"></div>
                       ) : (
                         <ResponsiveContainer width="100%" height="100%">

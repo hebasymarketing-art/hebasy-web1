@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { supabase } from '../supabase';
+import type { PortalData } from './PortalDashboard';
 
-export default function Login({ onLoginSuccess }: { onLoginSuccess: (data: any) => void }) {
+export default function Login({ onLoginSuccess }: { onLoginSuccess: (data: PortalData) => void }) {
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [showForgotModal, setShowForgotModal] = useState(false);
@@ -12,16 +13,20 @@ export default function Login({ onLoginSuccess }: { onLoginSuccess: (data: any) 
   const HEBASY_TELEGRAM = 'hebasy_Marketing';
 
   const handleLogin = async () => {
+    if (!code.trim()) {
+      alert("እባክዎ የደንበኛ ኮድ ያስገቡ");
+      return;
+    }
     setLoading(true);
     const { data, error } = await supabase
       .from('Reports')
       .select('*')
-      .eq('client_code', code); 
+      .eq('client_code', code.trim());
 
     if (error) {
       alert("ስህተት ተፈጥሯል");
     } else if (data && data.length > 0) {
-      onLoginSuccess(data[0]); 
+      onLoginSuccess(data[0]);
     } else {
       alert("የተሳሳተ ኮድ!");
     }
@@ -55,9 +60,10 @@ export default function Login({ onLoginSuccess }: { onLoginSuccess: (data: any) 
         
         <input 
           type="password" 
-          placeholder="የደንበኛ ኮድ ያስገቡ" 
+          placeholder="የደንበቻ ኮድ ያስገቡ" 
           className="w-full p-4 mb-4 border-2 border-slate-100 rounded-2xl focus:outline-none focus:border-[#0096ff] focus:ring-4 focus:ring-[#0096ff]/10 transition-all text-center font-medium"
           onChange={(e) => setCode(e.target.value)}
+          disabled={loading}
         />
         
         <div className="text-right mb-6">
@@ -72,9 +78,17 @@ export default function Login({ onLoginSuccess }: { onLoginSuccess: (data: any) 
 
         <button 
           onClick={handleLogin} 
-          className="w-full bg-[#0096ff] text-white py-4 rounded-2xl font-bold hover:bg-[#007acc] active:scale-95 transition-all duration-300 shadow-lg shadow-blue-500/20"
+          disabled={loading}
+          className="w-full bg-[#0096ff] text-white py-4 rounded-2xl font-bold hover:bg-[#007acc] active:scale-95 transition-all duration-300 shadow-lg shadow-blue-500/20 disabled:opacity-70 disabled:cursor-not-allowed"
         >
-          {loading ? '...' : 'ግባ'}
+          {loading ? (
+            <span className="inline-flex items-center justify-center gap-2">
+              <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+              እየገባ ነው...
+            </span>
+          ) : (
+            'ግባ'
+          )}
         </button>
       </div>
 
