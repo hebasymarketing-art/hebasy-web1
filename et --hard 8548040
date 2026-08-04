@@ -1,0 +1,17 @@
+[33m1a7aec5[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m HEAD@{0}: commit: Restore project files and fix deployment
+[33m70a8380[m[33m ([m[1;31morigin/master[m[33m, [m[1;31morigin/main[m[33m)[m HEAD@{1}: rebase (abort): returning to refs/heads/main
+[33m2a5531c[m HEAD@{2}: commit: Clean up duplicate folders and fix root deployment
+[33m666fa6d[m HEAD@{3}: commit: Fix website files and configuration
+[33m8b2151a[m HEAD@{4}: pull origin master --rebase (start): checkout 8b2151af38defeff4240a80c4849caa2a1a2ef49
+[33m70a8380[m[33m ([m[1;31morigin/master[m[33m, [m[1;31morigin/main[m[33m)[m HEAD@{5}: rebase (abort): returning to refs/heads/main
+[33m8548040[m HEAD@{6}: commit: Update website and fix configuration
+[33m8b2151a[m HEAD@{7}: pull origin master --rebase (start): checkout 8b2151af38defeff4240a80c4849caa2a1a2ef49
+[33m70a8380[m[33m ([m[1;31morigin/master[m[33m, [m[1;31morigin/main[m[33m)[m HEAD@{8}: commit: Remove vercel.json and fix root deployment
+[33mc139c33[m HEAD@{9}: commit: Fix vercel root directory and entry configuration
+[33ma15fb42[m HEAD@{10}: commit: Fix build error with proper dependencies and react version
+[33m3cc58b4[m HEAD@{11}: commit: Fix package.json scripts and vercel deployment config
+[33m3252d78[m HEAD@{12}: commit: Fix white screen and routing configuration
+[33m3ad4daf[m HEAD@{13}: Branch: renamed refs/heads/main to refs/heads/main
+[33m3ad4daf[m HEAD@{15}: Branch: renamed refs/heads/main to refs/heads/main
+[33m3ad4daf[m HEAD@{17}: Branch: renamed refs/heads/master to refs/heads/main
+[33m3ad4daf[m HEAD@{19}: commit (initial): Add vercel.json and fix portal refresh and UI
