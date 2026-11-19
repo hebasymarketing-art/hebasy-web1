@@ -27,11 +27,7 @@ export default function Hero() {
         
         <div className="w-full flex justify-start -mt-18 mb-8">
           {/* 🚀 እዚህ 'startAnim' የሚለውን ስቴት አውጥተን አኒሜሽኑን በቀጥታ አስገባንለት */}
-          <div className="animate-fade-up inline-block mb-10 px-4 py-1.5 bg-[#00aaff]/10 backdrop-blur-md rounded-full border border-[#00aaff]/30">
-            <span className="text-xs font-bold text-[#00aaff] tracking-widest uppercase">
-              Award-Winning Marketing Agency
-            </span>
-          </div>
+          
         </div>
 
         <div className="max-w-4xl mx-auto text-center flex flex-col items-center">

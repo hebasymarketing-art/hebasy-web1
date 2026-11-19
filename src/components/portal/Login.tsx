@@ -7,6 +7,7 @@ export default function Login({ onLoginSuccess }: { onLoginSuccess: (data: any) 
   const [showForgotModal, setShowForgotModal] = useState(false);
   const [clientIdentifier, setClientIdentifier] = useState('');
   const [clientVerifyCode, setClientVerifyCode] = useState('');
+  const [passwordHint, setPasswordHint] = useState('');
 
   // የHebasy Marketing ቴሌግራም ዩዘርናም ወይም የቡድን አድራሻ
   const HEBASY_TELEGRAM = 'hebasy_Marketing';

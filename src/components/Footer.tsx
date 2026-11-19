@@ -20,9 +20,9 @@ export default function Footer() {
             </p>
             <div className="flex space-x-4">
               {[
-                { icon: Facebook, href: "https://facebook.com/Hebasy_marketing", color: "hover:bg-blue-600" },
-                { icon: Instagram, href: "https://instagram.com/Hebasy_marketing", color: "hover:bg-pink-600" },
-                { icon: Send, href: "https://t.me/Hebasy_marketing", color: "hover:bg-[#00aaff]" },
+                { icon: Facebook, href: "https://facebook.com/Hebasymarketing", color: "hover:bg-blue-600" },
+                { icon: Instagram, href: "https://instagram.com/Hebasymarketing", color: "hover:bg-pink-600" },
+                { icon: Send, href: "https://t.me/Hebasymarketing", color: "hover:bg-[#00aaff]" },
                 { icon: Linkedin, href: "https://linkedin.com/company/hebasy-marketing", color: "hover:bg-blue-700" }
               ].map((social, index) => (
                 <a
@@ -91,8 +91,8 @@ export default function Footer() {
               </div>
               <div>
                 <p className="text-xs text-gray-400 uppercase tracking-widest">Telegram</p>
-                <a href="https://t.me/hebasy_marketing" target="_blank" rel="noopener noreferrer" className="text-white font-bold text-lg hover:text-[#00aaff] transition-colors">
-                  @hebasy_marketing
+                <a href="https://t.me/hebasymarketing" target="_blank" rel="noopener noreferrer" className="text-white font-bold text-lg hover:text-[#00aaff] transition-colors">
+                  @hebasymarketing
                 </a>
               </div>
             </div>
@@ -104,8 +104,8 @@ export default function Footer() {
               </div>
               <div>
                 <p className="text-xs text-gray-400 uppercase tracking-widest">Email</p>
-                <a href="mailto:hebasymarketing@gmail.com" className="text-white font-bold text-lg hover:text-[#00aaff] transition-colors break-all">
-                  hebasymarketing@gmail.com
+                <a href="mailto:sales@hebasymarketing.com.et" className="text-white font-bold text-lg hover:text-[#00aaff] transition-colors break-all">
+                  sales@hebasymarketing.com.et
                 </a>
               </div>
             </div>

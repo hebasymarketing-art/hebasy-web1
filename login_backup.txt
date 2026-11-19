@@ -1,0 +1,124 @@
+﻿import { useState } from 'react';
+import { supabase } from '../supabase';
+
+export default function Login({ onLoginSuccess }: { onLoginSuccess: (data: any) => void }) {
+  const [code, setCode] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [showForgotModal, setShowForgotModal] = useState(false);
+  const [clientIdentifier, setClientIdentifier] = useState('');
+  const [clientVerifyCode, setClientVerifyCode] = useState('');
+  const [passwordHint, setPasswordHint] = useState('');
+
+  // á‹¨Hebasy Marketing á‰´áˆŒáŒáˆ«áˆ á‹©á‹˜áˆ­áŠ“áˆ á‹ˆá‹­áˆ á‹¨á‰¡á‹µáŠ• áŠ á‹µáˆ«áˆ»
+  const HEBASY_TELEGRAM = 'hebasy_Marketing';
+
+  const handleLogin = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from('Reports')
+      .select('*')
+      .eq('client_code', code); 
+
+    if (error) {
+      alert("áˆµáˆ…á‰°á‰µ á‰°áˆáŒ¥áˆ¯áˆ");
+    } else if (data && data.length > 0) {
+      onLoginSuccess(data[0]); 
+    } else {
+      alert("á‹¨á‰°áˆ³áˆ³á‰° áŠ®á‹µ!");
+    }
+    setLoading(false);
+  };
+
+  const handleForgotPassword = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!clientIdentifier.trim() || !clientVerifyCode.trim()) {
+      alert("áŠ¥á‰£áŠ­á‹Ž áˆ˜áˆˆá‹«á‹ŽáŠ• áŠ¥áŠ“ á‹¨á‰°áˆ°áŒ á‹áŠ• áˆ›áˆ¨áŒ‹áŒˆáŒ« á‰áŒ¥áˆ­ áˆ™áˆ‰ á‰ áˆ™áˆ‰ á‹«áˆµáŒˆá‰¡");
+      return;
+    }
+
+    // áˆ˜áˆá‹•áŠ­á‰± áˆ™áˆ‰ á‰ áˆ™áˆ‰ á‰  Hebasy áˆµáˆ á‰¥á‰» áŠ¥áŠ•á‹²áˆ„á‹µ á‹­á‹°áˆ¨áŒ‹áˆ
+    const message = encodeURIComponent(`áˆ°áˆ‹áˆ Hebasy Marketingá£ á‹¨á“áˆµá‹Žáˆ­á‹µ áˆ›áˆµá‰³á‹ˆáˆ»/áˆªáˆ´á‰µ áŠ¥áˆáˆáŒ‹áˆˆáˆá¢\n\ná‹¨á‹°áŠ•á‰ áŠ› áˆµáˆ/áˆ˜áˆˆá‹«: ${clientIdentifier}\ná‹¨áˆ›áˆ¨áŒ‹áŒˆáŒ« á‰áŒ¥áˆ­: ${clientVerifyCode}`);
+    const telegramUrl = `https://t.me/${HEBASY_TELEGRAM}?text=${message}`;
+
+    window.open(telegramUrl, '_blank');
+    setShowForgotModal(false);
+    setClientIdentifier('');
+    setClientVerifyCode('');
+  };
+
+  return (
+    <div className="flex justify-center items-center h-screen bg-[#001428] relative overflow-hidden">
+      <div className="absolute w-[500px] h-[500px] bg-blue-600 rounded-full blur-[150px] opacity-20 animate-pulse -top-20 -left-20"></div>
+      <div className="absolute w-[400px] h-[400px] bg-indigo-600 rounded-full blur-[150px] opacity-20 animate-pulse delay-1000 -bottom-20 -right-20"></div>
+      
+      <div className="bg-white/95 backdrop-blur-sm p-10 rounded-[2rem] shadow-2xl w-full max-w-sm text-center border border-white/20 z-10">
+        <h2 className="text-2xl font-extrabold mb-8 text-[#001428] tracking-tight">á‹°áŠ•á‰ áŠ› áˆ˜áŒá‰¢á‹«</h2>
+        
+        <input 
+          type="password" 
+          placeholder="á‹¨á‹°áŠ•á‰ áŠ› áŠ®á‹µ á‹«áˆµáŒˆá‰¡" 
+          className="w-full p-4 mb-4 border-2 border-slate-100 rounded-2xl focus:outline-none focus:border-[#0096ff] focus:ring-4 focus:ring-[#0096ff]/10 transition-all text-center font-medium"
+          onChange={(e) => setCode(e.target.value)}
+        />
+        
+        <div className="text-right mb-6">
+          <button 
+            type="button"
+            onClick={() => setShowForgotModal(true)}
+            className="text-xs text-[#0096ff] hover:underline font-medium"
+          >
+            á“áˆµá‹Žáˆ­á‹µ áˆ¨áˆ±?
+          </button>
+        </div>
+
+        <button 
+          onClick={handleLogin} 
+          className="w-full bg-[#0096ff] text-white py-4 rounded-2xl font-bold hover:bg-[#007acc] active:scale-95 transition-all duration-300 shadow-lg shadow-blue-500/20"
+        >
+          {loading ? '...' : 'áŒá‰£'}
+        </button>
+      </div>
+
+      {showForgotModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50 p-4">
+          <div className="bg-white p-8 rounded-3xl w-full max-w-sm text-center shadow-2xl">
+            <h3 className="text-xl font-bold text-[#001428] mb-2">á‹¨á“áˆµá‹Žáˆ­á‹µ áˆ›áˆµá‰³á‹ˆáˆ» (Hebasy)</h3>
+            <p className="text-xs text-slate-500 mb-5">áˆ›áŠ•áŠá‰µá‹ŽáŠ• áˆˆáˆ›áˆ¨áŒ‹áŒˆáŒ¥ áˆ˜áˆˆá‹«á‹ŽáŠ• áŠ¥áŠ“ á‹¨á‰°áˆ°áŒ á‹áŠ• á‹¨áˆ›áˆ¨áŒ‹áŒˆáŒ« á‰áŒ¥áˆ­ á‹«áˆµáŒˆá‰¡á¢</p>
+            
+            <form onSubmit={handleForgotPassword}>
+              <input 
+                type="text" 
+                placeholder="á‹¨á‹°áŠ•á‰ áŠ› áˆµáˆ á‹ˆá‹­áˆ áŠ®á‹µ"
+                value={clientIdentifier}
+                onChange={(e) => setClientIdentifier(e.target.value)}
+                className="w-full p-3 mb-3 border-2 border-slate-100 rounded-xl focus:outline-none focus:border-[#0096ff] text-sm"
+              />
+              <input 
+                type="password" 
+                placeholder="á‹¨áˆ›áˆ¨áŒ‹áŒˆáŒ« á‰áŒ¥áˆ­ (Verification PIN)"
+                value={clientVerifyCode}
+                onChange={(e) => setClientVerifyCode(e.target.value)}
+                className="w-full p-3 mb-5 border-2 border-slate-100 rounded-xl focus:outline-none focus:border-[#0096ff] text-sm"
+              />
+              <div className="flex gap-2">
+                <button 
+                  type="button"
+                  onClick={() => setShowForgotModal(false)}
+                  className="w-1/2 bg-slate-200 text-slate-700 py-3 rounded-xl font-bold text-sm hover:bg-slate-300 transition-all"
+                >
+                  á‹­á‰…áˆ­
+                </button>
+                <button 
+                  type="submit"
+                  className="w-1/2 bg-[#0096ff] text-white py-3 rounded-xl font-bold text-sm hover:bg-[#007acc] transition-all"
+                >
+                  áˆ‹áŠ­
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

@@ -185,7 +185,7 @@ export default function Contact() {
                 href="mailto:hebasymarketing@gmail.com" 
                 className="text-gray-600 mb-1 break-words font-medium hover:text-[#00aaff] transition-colors block"
               >
-                hebasymarketing@gmail.com
+                sales@hebasymarketing.com.et
               </a>
               <span className="text-xs font-black uppercase tracking-widest text-[#00aaff]">Response within 24h</span>
             </div>

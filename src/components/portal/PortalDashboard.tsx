@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { AreaChart, Area, ResponsiveContainer } from 'recharts';
 import { supabase } from '../supabase';
+import { SubscriptionCountdown } from './SubscriptionCountdown';
 
 interface PortalData {
   client_code?: string;
@@ -259,6 +260,11 @@ export default function PortalDashboard({ data, onLogout }: PortalDashboardProps
             </div>
           </div>
 
+          {/* Subscription Countdown - Visible immediately upon login */}
+          <div className="w-full mb-8">
+            <SubscriptionCountdown clientId={data.client_code} />
+          </div>
+
           {/* Main Grid Section 1 */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 w-full">
             
@@ -497,13 +503,21 @@ export default function PortalDashboard({ data, onLogout }: PortalDashboardProps
               <div className="mt-6 pt-6 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
                 <span>{t.needSupport}</span>
                 <span className="font-bold text-[#2563EB]">Client Portal Hub</span>
+                <a
+                  href="https://t.me/hebasy_complaint_bot"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs font-medium text-indigo-600 hover:text-indigo-800 underline">
+                  @hebasy_complaint_bot
+                </a>
               </div>
             </div>
 
           </div>
         </div>
 
-      </div>
+        </div>
     </div>
   );
+
 }
